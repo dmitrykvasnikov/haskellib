@@ -4,12 +4,12 @@ module Parsim.Prim
   ( Parsim (..),
     Source (..),
     Consumed (..),
-    Stream (..),
+    Stream,
+    mzero,
     peek,
     many,
     many1,
     (<|>),
-    (<?>),
     (<!>),
     token,
     parse,
@@ -17,6 +17,7 @@ module Parsim.Prim
 where
 
 import           Control.Applicative (Alternative, empty, many, some, (<|>))
+import           Control.Monad       (MonadPlus, mplus, mzero)
 import           Parsim.Error
 import           Parsim.Pos
 
@@ -86,14 +87,11 @@ instance Monad (Parsim i) where
     Consumed a src' <- unParsim pa src
     unParsim (apb a) src'
 
-(<?>) :: (Monoid o) => Parsim i o -> Parsim i o -> Parsim i o
-(<?>) p1 p2 = Parsim $ \src ->
-  case unParsim p1 src of
-    Left _ -> unParsim p2 src
-    Right (Consumed o1 src') -> do
-      Consumed o2 src'' <- unParsim p2 src'
-      return $ Consumed (o1 <> o2) src''
+instance MonadPlus (Parsim i) where
+  mzero = Parsim $ \src -> Left $ ParsimError (sourcePos src) [Message $ "Empty parser error\n"]
+  mplus = (<|>)
 
+-- returns default value if parser fails
 (<!>) :: o -> Parsim i o -> Parsim i o
 (<!>) def p = Parsim $ \src ->
   case unParsim p src of

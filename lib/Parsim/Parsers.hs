@@ -19,6 +19,13 @@ module Parsim.Parsers
     ws,
     upper,
     lower,
+    between,
+    trim,
+    trim1,
+    triml,
+    trimr,
+    count,
+    choice,
   )
 where
 
@@ -60,6 +67,12 @@ alphaNum = satisfy "alpha-numeric" isAlphaNum
 upper = satisfy "upper" isUpper
 lower = satisfy "lower" isLower
 
+trim, trim1, triml, trimr :: Parsim String o -> Parsim String o
+trim p = (many ws) *> p <* (many ws)
+trim1 p = (many1 ws) *> p <* (many1 ws)
+triml p = (many1 ws) *> p
+trimr p = p <* many ws
+
 string :: String -> Parsim String String
 string s = traverse (\c -> satisfy ("string " <> show s) (== c)) s
 
@@ -82,10 +95,21 @@ num :: Parsim String Int
 num = read <$> digits
 
 sigNum :: Parsim String Int
-sigNum = read <$> ((sym '+' *> digits) <|> (string "-" <?> digits))
+sigNum = read <$> (digits <|> (sym '+' *> digits) <|> ((<>) <$> string "-" <*> digits))
 
 sepBy :: Parsim String a -> Parsim String b -> Parsim String [a]
 sepBy p sep = liftA2 (:) p (many (sep *> p)) <|> pure []
 
 sepBy1 :: Parsim String a -> Parsim String b -> Parsim String [a]
 sepBy1 p sep = liftA2 (:) p (many (sep *> p))
+
+between :: Parsim i o1 -> Parsim i o2 -> Parsim i o -> Parsim i o
+between p1 p2 p = p1 *> p <* p2
+
+count :: Int -> Parsim String o -> Parsim String [o]
+count n p
+  | n < 1 = pure []
+  | otherwise = sequence $ replicate n p
+
+choice :: [Parsim o i] -> Parsim o i
+choice = foldr (<|>) mzero

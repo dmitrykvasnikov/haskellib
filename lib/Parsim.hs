@@ -8,7 +8,6 @@ module Parsim
     many,
     some,
     (<|>),
-    (<?>),
     (<!>),
     parse,
     -- Parsers module export
@@ -32,6 +31,13 @@ module Parsim
     ws,
     upper,
     lower,
+    between,
+    trim,
+    trim1,
+    triml,
+    trimr,
+    count,
+    choice,
   )
 where
 
