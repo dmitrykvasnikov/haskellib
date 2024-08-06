@@ -107,13 +107,13 @@ token ::
   (Stream i t) =>
   (SourcePos -> t -> SourcePos) ->
   (t -> Maybe o) ->
-  (SourcePos -> t -> ParsimError) ->
+  (Source i -> t -> ParsimError) ->
   Parsim i o
-token toPos test err = Parsim $ \(Source pos i) ->
+token toPos test err = Parsim $ \s@(Source pos i) ->
   case peek i of
     Nothing -> Left $ ParsimError pos [Unexpect "Unexpected end of input"]
     Just (tok, toks) -> case test tok of
-      Nothing -> Left $ err pos tok
+      Nothing -> Left $ err s tok
       Just o  -> Right $ Consumed o (Source (toPos pos tok) toks)
 
 streamFromString :: String -> Source String

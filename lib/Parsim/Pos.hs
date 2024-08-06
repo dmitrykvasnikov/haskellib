@@ -14,7 +14,8 @@ type Line = Int
 data SourcePos = SourcePos SourceName Line Column
 
 instance Show SourcePos where
-  show (SourcePos n l c) = "Source: " <> n <> "\n" <> "line " <> show l <> " | position " <> show c <> "\n"
+  -- show (SourcePos n l c) = "Source: " <> n <> "\n" <> "line " <> show l <> " | position " <> show c <> "\n"
+  show (SourcePos n l c) = "Source: " <> n <> " at (" <> show l <> " : " <> show c <> ")\n"
 
 updatePosChar :: SourcePos -> Char -> SourcePos
 updatePosChar (SourcePos n l c) ch

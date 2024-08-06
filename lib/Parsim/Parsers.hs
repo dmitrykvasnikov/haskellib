@@ -11,10 +11,18 @@ module Parsim.Parsers
     noneOf,
     sepBy,
     sepBy1,
+    space,
+    tab,
+    newline,
+    alpha,
+    alphaNum,
+    ws,
+    upper,
+    lower,
   )
 where
 
-import           Data.Char    (isDigit)
+import           Data.Char    (isAlpha, isAlphaNum, isDigit, isLower, isUpper)
 import           Parsim.Error
 import           Parsim.Pos
 import           Parsim.Prim
@@ -31,13 +39,26 @@ satisfy name pred =
   token
     updatePosChar
     (\t -> if pred t then (Just t) else Nothing)
-    (\pos t -> ParsimError pos [Unexpect $ "Failed parser: " <> name <> "\nUnexpected character " <> show t])
+    ( \src t ->
+        ParsimError
+          (sourcePos src)
+          [Unexpect $ "Failed parser: " <> name <> "\nUnexpected character " <> show t <> "\n" <> show (source src)]
+    )
 
 sym :: Char -> Parsim String Char
 sym s = satisfy ("character " <> show s) (== s)
 
-anysym :: Parsim String Char
+space, tab, newline, ws, anysym, digit, alpha, alphaNum, upper, lower :: Parsim String Char
+space = satisfy "space" (== ' ')
+tab = satisfy "tab" (== '\t')
+newline = satisfy "newline" (== '\n')
+ws = satisfy "whitespace" (\c -> elem c "\t\n ")
 anysym = satisfy "any character" (const True)
+digit = satisfy "digit" isDigit
+alpha = satisfy "alpha" isAlpha
+alphaNum = satisfy "alpha-numeric" isAlphaNum
+upper = satisfy "upper" isUpper
+lower = satisfy "lower" isLower
 
 string :: String -> Parsim String String
 string s = traverse (\c -> satisfy ("string " <> show s) (== c)) s
@@ -53,9 +74,6 @@ eof = Parsim $ \s@(Source pos src) ->
   case peek src of
     Nothing  -> Right $ Consumed () s
     (Just _) -> Left $ ParsimError pos [Expect "Expected end of file"]
-
-digit :: Parsim String Char
-digit = satisfy "digit" isDigit
 
 digits :: Parsim String String
 digits = many1 $ satisfy "digits" isDigit

@@ -24,6 +24,14 @@ module Parsim
     noneOf,
     sepBy,
     sepBy1,
+    space,
+    tab,
+    newline,
+    alpha,
+    alphaNum,
+    ws,
+    upper,
+    lower,
   )
 where
 
