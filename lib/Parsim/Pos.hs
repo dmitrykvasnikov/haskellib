@@ -13,6 +13,15 @@ type Line = Int
 
 data SourcePos = SourcePos SourceName Line Column
 
+instance Eq SourcePos where
+  (==) (SourcePos _ l1 c1) (SourcePos _ l2 c2) = l1 == l2 && c1 == c2
+
+instance Ord SourcePos where
+  compare (SourcePos _ l1 c1) (SourcePos _ l2 c2)
+    | l1 == l2 && c1 == c2 = EQ
+    | l1 < l2 || (l1 == l2 && c1 < c2) = LT
+    | otherwise = GT
+
 instance Show SourcePos where
   -- show (SourcePos n l c) = "Source: " <> n <> "\n" <> "line " <> show l <> " | position " <> show c <> "\n"
   show (SourcePos n l c) = "Source: " <> n <> " at (" <> show l <> " : " <> show c <> ")\n"

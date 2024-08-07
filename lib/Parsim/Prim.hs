@@ -62,8 +62,10 @@ instance Applicative (Parsim i) where
 instance Semigroup (Parsim i o) where
   (<>) p1 p2 = Parsim $ \src ->
     case unParsim p1 src of
-      r@(Right _) -> r
-      Left _      -> unParsim p2 src
+      r1@(Right _) -> r1
+      Left e1 -> case unParsim p2 src of
+        r2@(Right _) -> r2
+        Left e2      -> Left $ mergeError e1 e2
 
 instance Monoid (Parsim i o) where
   mappend = (<>)
