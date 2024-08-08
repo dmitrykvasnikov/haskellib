@@ -112,6 +112,7 @@ MIN_TOOL_VERSION_hpc	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0
 MIN_TOOL_VERSION_hsc2hs	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define MIN_TOOL_VERSION_hsc2hs(/;"	d
 MIN_TOOL_VERSION_hsc2hs	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define MIN_TOOL_VERSION_hsc2hs(/;"	d
 MIN_TOOL_VERSION_hscolour	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define MIN_TOOL_VERSION_hscolour(/;"	d
+MIN_TOOL_VERSION_hscolour	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define MIN_TOOL_VERSION_hscolour(/;"	d
 MIN_TOOL_VERSION_pkg_config	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define MIN_TOOL_VERSION_pkg_config(/;"	d
 MIN_TOOL_VERSION_pkg_config	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define MIN_TOOL_VERSION_pkg_config(/;"	d
 MIN_TOOL_VERSION_runghc	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define MIN_TOOL_VERSION_runghc(/;"	d
@@ -128,9 +129,10 @@ Message	lib/Parsim/Error.hs	/^data Message = Unexpect String$/;"	t
 PackageInfo_haskellib	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/PackageInfo_haskellib.hs	/^module PackageInfo_haskellib ($/;"	m
 PackageInfo_haskellib	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/PackageInfo_haskellib.hs	/^module PackageInfo_haskellib ($/;"	m
 Parsim	lib/Parsim.hs	/^module Parsim$/;"	m
-Parsim	lib/Parsim/Error.hs	/^module Parsim.Error where$/;"	m
-Parsim	lib/Parsim/Pos.hs	/^module Parsim.Pos where$/;"	m
-Parsim	lib/Parsim/Prim.hs	/^module Parsim.Prim where$/;"	m
+Parsim	lib/Parsim/Error.hs	/^module Parsim.Error$/;"	m
+Parsim	lib/Parsim/Parsers.hs	/^module Parsim.Parsers$/;"	m
+Parsim	lib/Parsim/Pos.hs	/^module Parsim.Pos$/;"	m
+Parsim	lib/Parsim/Prim.hs	/^module Parsim.Prim$/;"	m
 Parsim	lib/Parsim/Prim.hs	/^newtype Parsim i o = Parsim { unParsim :: (Source i) -> Result i o }$/;"	c
 Parsim	lib/Parsim/Prim.hs	/^newtype Parsim i o = Parsim { unParsim :: (Source i) -> Result i o }$/;"	t
 ParsimError	lib/Parsim/Error.hs	/^data ParsimError = ParsimError SourcePos [Message]$/;"	c
@@ -141,9 +143,9 @@ Result	lib/Parsim/Prim.hs	/^type Result i o = Either ParsimError (Consumed i o)$
 Revision history for haskellib	CHANGELOG.md	/^# Revision history for haskellib$/;"	c
 Source	lib/Parsim/Prim.hs	/^data Source i = Source { sourcePos :: SourcePos$/;"	c
 Source	lib/Parsim/Prim.hs	/^data Source i = Source { sourcePos :: SourcePos$/;"	t
-SourceName	lib/Parsim/Pos.hs	/^type SourceName = String$/;"	t
 SourcePos	lib/Parsim/Pos.hs	/^data SourcePos = SourcePos SourceName Line Column$/;"	c
 SourcePos	lib/Parsim/Pos.hs	/^data SourcePos = SourcePos SourceName Line Column$/;"	t
+System	lib/Parsim/Error.hs	/^             | System String$/;"	c
 TOOL_VERSION_gcc	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define TOOL_VERSION_gcc /;"	d
 TOOL_VERSION_gcc	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define TOOL_VERSION_gcc /;"	d
 TOOL_VERSION_ghc	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define TOOL_VERSION_ghc /;"	d
@@ -157,6 +159,7 @@ TOOL_VERSION_hpc	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x
 TOOL_VERSION_hsc2hs	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define TOOL_VERSION_hsc2hs /;"	d
 TOOL_VERSION_hsc2hs	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define TOOL_VERSION_hsc2hs /;"	d
 TOOL_VERSION_hscolour	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define TOOL_VERSION_hscolour /;"	d
+TOOL_VERSION_hscolour	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define TOOL_VERSION_hscolour /;"	d
 TOOL_VERSION_pkg_config	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define TOOL_VERSION_pkg_config /;"	d
 TOOL_VERSION_pkg_config	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define TOOL_VERSION_pkg_config /;"	d
 TOOL_VERSION_runghc	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define TOOL_VERSION_runghc /;"	d
@@ -169,8 +172,13 @@ VERSION_base	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/has
 VERSION_haskellib	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/cabal_macros.h	/^#define VERSION_haskellib /;"	d
 VERSION_haskellib	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/cabal_macros.h	/^#define VERSION_haskellib /;"	d
 abi	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^abi:                  inplace$/;"	k
+alpha	lib/Parsim/Parsers.hs	/^alpha = satisfy "alpha" isAlpha$/;"	f
+alphaNum	lib/Parsim/Parsers.hs	/^alphaNum = satisfy "alpha-numeric" isAlphaNum$/;"	f
+anyOf	lib/Parsim/Parsers.hs	/^anyOf cs = satisfy ("any of " <> show cs) (flip elem cs)$/;"	f
+anysym	lib/Parsim/Parsers.hs	/^anysym = satisfy "any character" (const True)$/;"	f
 arch	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s
 author	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^author:               Dmitry Kvasnikov$/;"	k
+between	lib/Parsim/Prim.hs	/^between p1 p2 p = p1 *> p <* p2$/;"	f
 bin-file	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.5
 bindir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^bindir     = "\/home\/dmitry\/.cabal\/bin"$/;"	f
 bindir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath$/;"	f
@@ -183,13 +191,17 @@ cabal-version	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal
 catchIO	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^catchIO = Exception.catch$/;"	f
 catchIO	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/Paths_haskellib.hs	/^catchIO = Exception.catch$/;"	f
 category	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^category:             Development$/;"	k
-chr	lib/Parsim/Prim.hs	/^chr ch =$/;"	f
+chain	lib/Parsim/Prim.hs	/^chain _ []       = undefined$/;"	f
+chain	lib/Parsim/Prim.hs	/^chain _ [p]      = p$/;"	f
+chain	lib/Parsim/Prim.hs	/^chain f (p : ps) = foldl (liftA2 f) p ps$/;"	f
+choice	lib/Parsim/Prim.hs	/^choice = foldr (<|>) mzero$/;"	f
 class	lib/Parsim/Prim.hs	/^class Stream i o | i -> o where$/;"	f
 compiler-id	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s
 component-name	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.4
 component-name	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.5
 copyright	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/PackageInfo_haskellib.hs	/^copyright = ""$/;"	f
 copyright	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/PackageInfo_haskellib.hs	/^copyright = ""$/;"	f
+count	lib/Parsim/Prim.hs	/^count n p$/;"	f
 datadir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^datadir    = "\/home\/dmitry\/.cabal\/share\/x86_64-linux-ghc-9.10.1-7767\/haskellib-0.1.0.0"$/;"	f
 datadir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/Paths_haskellib.hs	/^datadir    = "\/home\/dmitry\/.cabal\/share\/x86_64-linux-ghc-9.10.1-7767\/haskellib-0.1.0.0"$/;"	f
 depends	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	a	object:install-plan.0
@@ -200,6 +212,8 @@ depends	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-v
 depends	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	a	object:install-plan.5
 depends	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	a	object:install-plan.6
 depends	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^depends:              base-4.20.0.0-18ae$/;"	k
+digit	lib/Parsim/Parsers.hs	/^digit = satisfy "digit" isDigit$/;"	f
+digits	lib/Parsim/Parsers.hs	/^digits = many1 $ satisfy "digits" isDigit$/;"	f
 dir	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^data-dir:             \/home\/dmitry\/code\/haskell\/haskellib\/.$/;"	k
 dirs	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^dynamic-library-dirs:$/;"	k
 dirs	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^import-dirs:$/;"	k
@@ -208,11 +222,13 @@ dist-dir	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-
 dist-dir	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.5
 dynlibdir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^dynlibdir  = "\/home\/dmitry\/.cabal\/lib\/x86_64-linux-ghc-9.10.1-7767"$/;"	f
 dynlibdir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/Paths_haskellib.hs	/^dynlibdir  = "\/home\/dmitry\/.cabal\/lib\/x86_64-linux-ghc-9.10.1-7767"$/;"	f
+eof	lib/Parsim/Prim.hs	/^eof = Parsim $ \\s@(Source pos src) ->$/;"	f
 exe-depends	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	a	object:install-plan.4
 exe-depends	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	a	object:install-plan.5
 exposed	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^exposed:              True$/;"	k
 flags	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	o	object:install-plan.4
 flags	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	o	object:install-plan.5
+followedBy	lib/Parsim/Prim.hs	/^followedBy p = Parsim $ \\src ->$/;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^getBinDir     = catchIO (getEnv "haskellib_bindir")     (\\_ -> return bindir)$/;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath$/;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/Paths_haskellib.hs	/^getBinDir     = catchIO (getEnv "haskellib_bindir")     (\\_ -> return bindir)$/;"	f
@@ -259,13 +275,23 @@ libexecdir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/a
 libexecdir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/Paths_haskellib.hs	/^libexecdir = "\/home\/dmitry\/.cabal\/libexec\/x86_64-linux-ghc-9.10.1-7767\/haskellib-0.1.0.0"$/;"	f
 libraries	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^hs-libraries:         HShaskellib-0.1.0.0-inplace$/;"	k
 license	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^license:              MIT$/;"	k
+lower	lib/Parsim/Parsers.hs	/^lower = satisfy "lower" isLower$/;"	f
 main	app/Main.hs	/^main = do$/;"	f
 maintainer	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^maintainer:           dmitry.kvasnikov@gmail.com$/;"	k
-modules	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^exposed-modules:      Parsim Parsim.Error Parsim.Pos Parsim.Prim$/;"	k
+many1	lib/Parsim/Prim.hs	/^many1 = some$/;"	f
+mergeError	lib/Parsim/Error.hs	/^mergeError e1@(ParsimError pos1 msg1) e2@(ParsimError pos2 msg2) =$/;"	f
+mkError	lib/Parsim/Error.hs	/^mkError errType pos msg$/;"	f
+mkParsimError	lib/Parsim/Prim.hs	/^mkParsimError errType str = Parsim $ \\src -> Left $ mkError errType (sourcePos src) str$/;"	f
+modules	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^exposed-modules:$/;"	k
 name	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/PackageInfo_haskellib.hs	/^name = "haskellib"$/;"	f
 name	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/PackageInfo_haskellib.hs	/^name = "haskellib"$/;"	f
 name	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^name:                 haskellib$/;"	k
+newline	lib/Parsim/Parsers.hs	/^newline = satisfy "newline" (== '\\n')$/;"	f
+noneOf	lib/Parsim/Parsers.hs	/^noneOf cs = satisfy ("none of " <> show cs) (not . flip elem cs)$/;"	f
+notFollowedBy	lib/Parsim/Prim.hs	/^notFollowedBy p = Parsim $ \\src ->$/;"	f
+num	lib/Parsim/Parsers.hs	/^num = read <$> digits$/;"	f
 os	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s
+parse	lib/Parsim/Prim.hs	/^parse p str = unParsim p (streamFromString str)$/;"	f
 path	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.4.pkg-src
 path	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.5.pkg-src
 pathSeparator	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^pathSeparator = '\/'$/;"	f
@@ -289,16 +315,32 @@ pkg-version	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-l
 printMessages	lib/Parsim/Error.hs	/^printMessages (msg : msgs) = go 1 msg msgs$/;"	f
 printMessages	lib/Parsim/Error.hs	/^printMessages [] = "Empty error messages list"$/;"	f
 printMessages	lib/Parsim/Error.hs	/^printMessages [msg] = show msg$/;"	f
+satisfy	lib/Parsim/Parsers.hs	/^satisfy name pred =$/;"	f
+sepBy	lib/Parsim/Prim.hs	/^sepBy p sep = liftA2 (:) p (many (sep *> p)) <|> pure []$/;"	f
+sepBy1	lib/Parsim/Prim.hs	/^sepBy1 p sep = liftA2 (:) p (many (sep *> p))$/;"	f
+sigNum	lib/Parsim/Parsers.hs	/^sigNum = read <$> (digits <|> (sym '+' *> digits) <|> ((<>) <$> string "-" <*> digits))$/;"	f
 source	lib/Parsim/Prim.hs	/^                       , source    :: i$/;"	f
 sourcePos	lib/Parsim/Prim.hs	/^data Source i = Source { sourcePos :: SourcePos$/;"	f
+space	lib/Parsim/Parsers.hs	/^space = satisfy "space" (== ' ')$/;"	f
+space	lib/Parsim/Parsers.hs	/^space, tab, newline, ws, anysym, digit, alpha, alphaNum, upper, lower :: Parsim String Char$/;"	f
 static	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^library-dirs-static:$/;"	k
+streamFromFile	lib/Parsim/Prim.hs	/^streamFromFile f = do$/;"	f
+streamFromString	lib/Parsim/Prim.hs	/^streamFromString str = Source (SourcePos "Custom string" 1 1) str$/;"	f
+string	lib/Parsim/Parsers.hs	/^string s = traverse (\\c -> satisfy ("string " <> show s) (== c)) s$/;"	f
 style	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.4
 style	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.5
+sym	lib/Parsim/Parsers.hs	/^sym s = satisfy ("character " <> show s) (== s)$/;"	f
 synopsis	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/PackageInfo_haskellib.hs	/^synopsis = ""$/;"	f
 synopsis	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/PackageInfo_haskellib.hs	/^synopsis = ""$/;"	f
 sysconfdir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^sysconfdir = "\/home\/dmitry\/.cabal\/etc"$/;"	f
 sysconfdir	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/Paths_haskellib.hs	/^sysconfdir = "\/home\/dmitry\/.cabal\/etc"$/;"	f
-token	lib/Parsim/Prim.hs	/^token toPos test err = Parsim $ \\(Source pos i) ->$/;"	f
+tab	lib/Parsim/Parsers.hs	/^tab = satisfy "tab" (== '\\t')$/;"	f
+token	lib/Parsim/Prim.hs	/^token test toPos err = Parsim $ \\s@(Source pos i) ->$/;"	f
+trim	lib/Parsim/Parsers.hs	/^trim p = (many ws) *> p <* (many ws)$/;"	f
+trim	lib/Parsim/Parsers.hs	/^trim, trim1, triml, trimr :: Parsim String o -> Parsim String o$/;"	f
+trim1	lib/Parsim/Parsers.hs	/^trim1 p = (many1 ws) *> p <* (many1 ws)$/;"	f
+triml	lib/Parsim/Parsers.hs	/^triml p = (many1 ws) *> p$/;"	f
+trimr	lib/Parsim/Parsers.hs	/^trimr p = p <* many ws$/;"	f
 type	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.0
 type	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.1
 type	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-version":"3.12.1.0","compiler-id":"ghc-9.10.1","os":"linu/;"	s	object:install-plan.2
@@ -311,6 +353,7 @@ type	dist-newstyle/cache/plan.json	/^{"cabal-version":"3.12.1.0","cabal-lib-vers
 unParsim	lib/Parsim/Prim.hs	/^newtype Parsim i o = Parsim { unParsim :: (Source i) -> Result i o }$/;"	f
 updatePosChar	lib/Parsim/Pos.hs	/^updatePosChar (SourcePos n l c) ch$/;"	f
 updatePosString	lib/Parsim/Pos.hs	/^updatePosString s = foldl updatePosChar s$/;"	f
+upper	lib/Parsim/Parsers.hs	/^upper = satisfy "upper" isUpper$/;"	f
 version	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/PackageInfo_haskellib.hs	/^version = Version [0,1,0,0] []$/;"	f
 version	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/build/autogen/Paths_haskellib.hs	/^version = Version [0,1,0,0] []$/;"	f
 version	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskellib/build/haskellib/autogen/PackageInfo_haskellib.hs	/^version = Version [0,1,0,0] []$/;"	f
@@ -318,3 +361,10 @@ version	dist-newstyle/build/x86_64-linux/ghc-9.10.1/haskellib-0.1.0.0/x/haskelli
 version	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^version:              0.1.0.0$/;"	k
 visibility	dist-newstyle/packagedb/ghc-9.10.1/haskellib-0.1.0.0-inplace.conf	/^visibility:           public$/;"	k
 where	lib/Parsim.hs	/^$/;"	f
+where	lib/Parsim/Error.hs	/^$/;"	f
+where	lib/Parsim/Parsers.hs	/^$/;"	f
+where	lib/Parsim/Pos.hs	/^$/;"	f
+where	lib/Parsim/Prim.hs	/^$/;"	f
+withDefault	lib/Parsim/Prim.hs	/^withDefault def p = Parsim $ \\src ->$/;"	f
+withDefaultCons	lib/Parsim/Prim.hs	/^withDefaultCons def toPos p = Parsim $ \\src ->$/;"	f
+ws	lib/Parsim/Parsers.hs	/^ws = satisfy "whitespace" (\\c -> elem c "\\t\\n ")$/;"	f

@@ -8,7 +8,8 @@ module Parsim
     many,
     some,
     (<|>),
-    (<!>),
+    withDefault,
+    withDefaultCons,
     parse,
     -- Parsers module export
     sym,
