@@ -5,15 +5,17 @@ module Parsim
     ParsimError (..),
     Message (..),
     -- Prim module export
+    Parsim,
     many,
     some,
     (<|>),
     withDefault,
     withDefaultCons,
-    parse,
+    sfs,
+    sff,
     -- Parsers module export
     sym,
-    anysym,
+    anySym,
     string,
     digit,
     digits,
@@ -22,6 +24,8 @@ module Parsim
     eof,
     anyOf,
     noneOf,
+    anyTok,
+    anyTok',
     sepBy,
     sepBy1,
     space,
@@ -39,10 +43,13 @@ module Parsim
     trimr,
     count,
     choice,
+    best,
+    match,
+    parse,
+    parse_,
   )
 where
 
-import           Control.Applicative (many, some, (<|>))
 import           Parsim.Error
 import           Parsim.Parsers
 import           Parsim.Pos

@@ -5,24 +5,19 @@ module Parsim.Prim
     Source (..),
     Consumed (..),
     Stream,
+    Result (..),
+    many,
+    some,
+    (<|>),
     mzero,
     peek,
-    eof,
-    many,
-    many1,
-    (<|>),
-    sepBy,
-    sepBy1,
-    between,
-    withDefault,
-    withDefaultCons,
-    followedBy,
-    notFollowedBy,
-    choice,
-    chain,
     token,
+    sff,
+    sfs,
+    match,
     parse,
-    count,
+    parse_,
+    mkParsimError,
   )
 where
 
@@ -96,9 +91,6 @@ instance Alternative (Parsim i) where
       many_p = some_p <|> pure []
       some_p = liftA2 (:) p many_p
 
-many1 :: Parsim i o -> Parsim i [o]
-many1 = some
-
 instance Monad (Parsim i) where
   return = pure
   pa >>= apb = Parsim $ \src -> do
@@ -109,71 +101,6 @@ instance MonadPlus (Parsim i) where
   mzero = Parsim $ \src -> Left $ ParsimError (sourcePos src) [Message $ "Empty parser error\n"]
   mplus = (<|>)
 
--- returns default value if parser fails
-
--- * doesn't consume input stream
-
-withDefault :: o -> Parsim i o -> Parsim i o
-withDefault def p = Parsim $ \src ->
-  case unParsim p src of
-    Left _ -> Right $ Consumed def src
-    r      -> r
-
--- * consume input stream
-
-withDefaultCons :: o -> (Source i -> o -> Source i) -> Parsim i o -> Parsim i o
-withDefaultCons def toPos p = Parsim $ \src ->
-  case unParsim p src of
-    Left _ -> Right $ Consumed def $ toPos src def
-    r      -> r
-
--- end of file
-
-eof :: (Stream i o) => Parsim i ()
-eof = Parsim $ \s@(Source pos src) ->
-  case peek src of
-    Nothing  -> Right $ Consumed () s
-    (Just _) -> Left $ ParsimError pos [Expect $ "Expected end of file\n"]
-
--- chain with provided function. Raise error in case of empty parser list
--- Execut the only parser if only one parser in the list
-chain :: (o -> o -> o) -> [Parsim i o] -> Parsim i o
-chain _ []       = undefined
-chain _ [p]      = p
-chain f (p : ps) = foldl (liftA2 f) p ps
-
--- choice is alternative to <|>
-choice :: [Parsim o i] -> Parsim o i
-choice = foldr (<|>) mzero
-
--- try parser N times
-count :: Int -> Parsim i o -> Parsim i [o]
-count n p
-  | n < 1 = pure []
-  | otherwise = sequence $ replicate n p
-
-sepBy :: Parsim i a -> Parsim i b -> Parsim i [a]
-sepBy p sep = liftA2 (:) p (many (sep *> p)) <|> pure []
-
-sepBy1 :: Parsim i a -> Parsim i b -> Parsim i [a]
-sepBy1 p sep = liftA2 (:) p (many (sep *> p))
-
-between :: Parsim i o1 -> Parsim i o2 -> Parsim i o -> Parsim i o
-between p1 p2 p = p1 *> p <* p2
-
--- check parser without consuming input
-followedBy :: (Stream i o) => Parsim i o -> Parsim i ()
-followedBy p = Parsim $ \src ->
-  case unParsim p src of
-    Right _ -> Right $ Consumed () src
-    Left e  -> Left e
-
-notFollowedBy :: (Stream i o) => Parsim i o -> Parsim i ()
-notFollowedBy p = Parsim $ \src ->
-  case unParsim p src of
-    Left _ -> Right $ Consumed () src
-    Right _ -> Left $ mkError "msg" (sourcePos src) ("notFollowedBy parser failed")
-
 token ::
   (Stream i t) =>
   (t -> Maybe o) ->
@@ -182,22 +109,42 @@ token ::
   Parsim i o
 token test toPos err = Parsim $ \s@(Source pos i) ->
   case peek i of
-    Nothing -> Left $ ParsimError pos [Unexpect "Unexpected end of input"]
+    Nothing -> Left $ ParsimError pos [Unexpect "Expected end of input"]
     Just (tok, toks) -> case test tok of
       Nothing -> Left $ err s tok
       Just o  -> Right $ Consumed o (Source (toPos pos tok) toks)
 
-streamFromString :: String -> Source String
+streamFromString, sfs :: String -> Source String
 streamFromString str = Source (SourcePos "Custom string" 1 1) str
+sfs = streamFromString
 
-streamFromFile :: FilePath -> IO (Source String)
+streamFromFile, sff :: FilePath -> IO (Source String)
 streamFromFile f = do
   content <- readFile f
   return $ Source (SourcePos ("File :" <> f) 1 1) content
+sff = streamFromFile
 
 -- Error types: "sys" - System, "msg" - Message
 mkParsimError :: String -> String -> Parsim i o
 mkParsimError errType str = Parsim $ \src -> Left $ mkError errType (sourcePos src) str
 
-parse :: Parsim String o -> String -> Result String o
-parse p str = unParsim p (streamFromString str)
+-- match gives you back output wrapped in Result
+-- parse only succeds when it counsumes whole input
+-- parse_ drops rest of input if parser succeds
+match :: Parsim i o -> Source i -> Result i o
+match p src = unParsim p src
+
+parse :: (Stream i t) => Parsim i o -> Source i -> Either ParsimError o
+parse p src =
+  case unParsim p src of
+    Right (Consumed o src') ->
+      case peek (source src') of
+        Nothing -> Right o
+        Just _ -> Left $ ParsimError (sourcePos src') [Expect $ "Expected end of input, try to use 'parse_' to ignore rest of input"]
+    Left e -> Left e
+
+parse_ :: Parsim i o -> Source i -> Either ParsimError o
+parse_ p src =
+  case unParsim p src of
+    Right (Consumed o _) -> Right o
+    Left e               -> Left e

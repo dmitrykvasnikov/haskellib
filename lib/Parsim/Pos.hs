@@ -2,6 +2,7 @@ module Parsim.Pos
   ( SourcePos (..),
     updatePosChar,
     updatePosString,
+    increasePos,
   )
 where
 
@@ -34,3 +35,6 @@ updatePosChar (SourcePos n l c) ch
 
 updatePosString :: SourcePos -> String -> SourcePos
 updatePosString s = foldl updatePosChar s
+
+increasePos :: SourcePos -> SourcePos
+increasePos (SourcePos n l c) = SourcePos n l (c + 1)
