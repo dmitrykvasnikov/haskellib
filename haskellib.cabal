@@ -59,12 +59,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Parsim
-                    , Parsim.Prim
-                    , Parsim.Pos
-                    , Parsim.Error
-                    , Parsim.Parsers
-
+    exposed-modules: Yap
     -- Modules included in this library but not exported.
     -- other-modules:
 
