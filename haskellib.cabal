@@ -60,6 +60,9 @@ library
 
     -- Modules exported by the library.
     exposed-modules: Yap
+                   , Yap.Prim
+                   , Yap.Error
+                   , Yap.Input
     -- Modules included in this library but not exported.
     -- other-modules:
 
@@ -68,6 +71,8 @@ library
 
     -- Other library packages from which modules are imported.
     build-depends:    base ^>=4.20.0.0
+                    , transformers
+                    , text
 
     -- Directories containing source files.
     hs-source-dirs:   lib
