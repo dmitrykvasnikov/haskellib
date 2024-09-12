@@ -26,8 +26,8 @@ mkInputFromString str =
       tab = 8
     }
 
-peek :: Input -> Input
-peek (Input o ((lp, l), c) ch sr t) =
+moveInput :: Input -> Input
+moveInput (Input o ((lp, l), c) ch sr t) =
   case o < (T.length sr) - 1 of
     True ->
       let newO = o + 1
@@ -36,4 +36,4 @@ peek (Input o ((lp, l), c) ch sr t) =
             '\n' -> Input newO ((newO, l + 1), 1) newC sr t
             '\t' -> Input newO ((lp, l), c + t - ((c - 1) `mod` t)) newC sr t
             _    -> Input newO ((lp, l), c + 1) newC sr t
-    False -> Input (o + 1) ((l, lp), c) '\NUL' sr t
+    False -> Input o ((lp, l), c) '\NUL' sr t

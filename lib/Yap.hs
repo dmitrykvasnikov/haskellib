@@ -6,9 +6,14 @@ module Yap
     sym,
     anySym,
     string,
+    num,
+    sigNum,
+    double,
+    sigDouble,
     (<|>),
     some,
     many,
+    asum,
   )
 where
 
