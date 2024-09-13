@@ -2,7 +2,7 @@
 
 module Yap.Prim where
 
-import           Control.Applicative (Alternative, empty, some, (<|>))
+import           Control.Applicative (Alternative, asum, empty, some, (<|>))
 import           Data.Char           (isDigit)
 import           Data.Text           (unpack)
 import           Yap.Error
@@ -26,7 +26,11 @@ instance Applicative Parser where
       Left e -> Left e
 
 instance Alternative Parser where
-  empty = Parser $ \_ -> Left $ Internal (0, 0) '!' "Internal error for empty method in Alternative"
+  empty = do
+    p <- getErrorPos
+    s <- getErrorSrc
+    ch <- gets curChar
+    Parser $ \_ -> Left $ Unexpected "" p ch s
   (Parser p1) <|> (Parser p2) = Parser $ \i ->
     case p1 i of
       r@(Right _) -> r
@@ -38,6 +42,13 @@ instance Monad Parser where
     case ma i of
       Right (a, i') -> parser (f a) i'
       Left e        -> Left e
+
+eof :: Parser ()
+eof = do
+  ch <- gets curChar
+  case ch == '\NUL' of
+    True -> return ()
+    False -> getErrorPos >>= \p -> getErrorSrc >>= \s -> Parser $ \_ -> Left $ Expected "Expected end of input" p s
 
 satisfy :: (Char -> Bool) -> ((Int, Int) -> Char -> String -> Error) -> Parser Char
 satisfy cond err = do
@@ -52,7 +63,7 @@ sym :: Char -> Parser Char
 sym c = satisfy (== c) (Unexpected $ "Can not parse char '" <> [c] <> "'")
 
 anySym :: Parser Char
-anySym = satisfy (const True) EndOfInput
+anySym = satisfy (const True) (Unexpected $ "Unexpected end of input")
 
 string :: String -> Parser String
 string s = traverse (\c -> satisfy (== c) (Unexpected $ "Can not parse string '" <> s <> "'")) s
@@ -67,6 +78,9 @@ sigNum = num <|> sym '-' *> (negate <$> num) <|> sym '+' *> num
 double, sigDouble :: Parser Double
 double = read . concat <$> sequence [numS, string ".", numS]
 sigDouble = read . concat <$> sequence [numS <|> string "+" *> numS <|> (concat <$> sequence [string "-", numS]), string ".", numS]
+
+choice :: [Parser t] -> Parser t
+choice = foldr (<|>) empty
 
 parse :: Parser t -> String -> Either Error t
 parse p s = fmap fst <$> parser p $ mkInputFromString s

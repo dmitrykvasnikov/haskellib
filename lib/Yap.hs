@@ -10,6 +10,7 @@ module Yap
     sigNum,
     double,
     sigDouble,
+    choice,
     (<|>),
     some,
     many,

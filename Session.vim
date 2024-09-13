@@ -15,16 +15,16 @@ else
   set shortmess=aoO
 endif
 badd +74 haskellib.cabal
-badd +20 lib/Yap.hs
-badd +69 lib/Yap/Prim.hs
-badd +24 lib/Yap/Error.hs
+badd +13 lib/Yap.hs
+badd +98 lib/Yap/Prim.hs
+badd +23 lib/Yap/Error.hs
 badd +6 lib/Yap/Input.hs
-badd +3 app/Main.hs
+badd +1 app/Main.hs
 argglobal
 %argdel
-edit lib/Yap/Prim.hs
+edit lib/Yap/Error.hs
 argglobal
-balt lib/Yap/Input.hs
+balt lib/Yap/Prim.hs
 setlocal fdm=marker
 setlocal fde=0
 setlocal fmr=/**,**/
@@ -33,12 +33,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 7 - ((6 * winheight(0) + 16) / 33)
+let s:l = 42 - ((31 * winheight(0) + 16) / 33)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 7
-normal! 045|
+keepjumps 42
+normal! 027|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
@@ -51,7 +51,6 @@ if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
 endif
 let &g:so = s:so_save | let &g:siso = s:siso_save
-nohlsearch
 let g:this_session = v:this_session
 let g:this_obsession = v:this_session
 doautoall SessionLoadPost
