@@ -5,10 +5,9 @@ import qualified Data.Text as T
 
 -- pos - ((LineStartingPosition, NumberOfLine), NumberOf Column)
 -- tab - tab size
-data Input = Input { offset  :: Int
-                   , pos     :: ((Int, Int), Int)
-                   , curChar :: Char
-                   , source  :: Text
+data Input = Input { offset :: Int
+                   , pos    :: ((Int, Int), Int)
+                   , source :: Text
                    }
   deriving (Show)
 
@@ -20,7 +19,6 @@ mkInputFromString str =
   Input
     { offset = 0,
       pos = ((0, 1), 1),
-      curChar = if length str == 0 then '\NUL' else str !! 0,
       source = T.pack str
     }
 

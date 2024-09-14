@@ -1,9 +1,8 @@
 module Yap.Config where
 
 -- tab - tabsize
-data Config = Config { tab :: Int
+-- doubleSep - separator for double numbers AS STRING!!!
+data Config = Config { tab       :: Int
+                     , doubleSep :: String
                      }
-
--- Standard Config
-config :: Config
-config = Config {tab = 8}
+  deriving (Show)

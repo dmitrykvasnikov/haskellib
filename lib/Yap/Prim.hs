@@ -1,37 +1,47 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Yap.Prim
-  ( (<|>),
+  ( Config (..),
+    Parser (..),
+    parse,
+    parse',
+    sym,
+    anySym,
+    string,
+    num,
+    sigNum,
+    double,
+    sigDouble,
+    mkInputFromString,
+    mkInputFromFile,
+    stdConfig,
     some,
     many,
-    asum,
-    --     mkInputFromFile,
-    --     mkInputFromString,
+    (<|>),
   )
 where
 
-import           Control.Applicative              (Alternative (many), asum,
-                                                   empty, some, (<|>))
-import           Control.Monad.Trans.Class        (lift)
-import           Control.Monad.Trans.Except       (ExceptT, runExceptT)
-import           Control.Monad.Trans.Reader       (Reader, asks, runReader)
-import           Control.Monad.Trans.State.Strict (StateT, evalStateT)
+import           Control.Applicative              (many, some, (<|>))
+import           Control.Monad.Trans.Except       (runExceptT)
+import           Control.Monad.Trans.Reader       (runReader)
+import           Control.Monad.Trans.State.Strict (evalStateT, runStateT)
 import           Yap.Config
+import           Yap.Config                       (Config (doubleSep))
 import           Yap.Error
 import           Yap.Input
+import           Yap.Parser
 
-newtype Parser t = Parser { unparse :: ExceptT Error (StateT Input (Reader Config)) t }
-  deriving (Applicative, Functor, Monad)
+-- Parser runner
+parse :: Parser t -> String -> Either Error t
+parse (Parser p) = (flip runReader stdConfig) . (evalStateT . runExceptT) p . mkInputFromString
 
-parser :: Parser t -> String -> Either Error t
-parser (Parser p) s = runReader ((evalStateT . runExceptT) p . mkInputFromString $ s) config
+parse' :: Parser t -> String -> (Either Error t, Input)
+parse' (Parser p) = (flip runReader stdConfig) . (runStateT . runExceptT) p . mkInputFromString
 
--- getErrorPos :: Parser (Int, Int)
--- getErrorPos = gets pos >>= \((_, l), c) -> return (l, c)
---
--- getErrorSrc :: Parser String
--- getErrorSrc = do
---   (Input _ ((l, _), c) _ s _) <- get
---   let sps = take (c - 1) (repeat ' ')
---       src = takeWhile (/= '\n') (drop l $ unpack s)
---   return $ sps <> "*\n" <> src <> "\n" <> sps <> "*\n"
+-- Standard config
+stdConfig :: Config
+stdConfig =
+  Config
+    { tab = 8,
+      doubleSep = "."
+    }

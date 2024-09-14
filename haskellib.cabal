@@ -64,6 +64,7 @@ library
                    , Yap.Error
                    , Yap.Input
                    , Yap.Config
+                   , Yap.Parser
     -- Modules included in this library but not exported.
     -- other-modules:
 
