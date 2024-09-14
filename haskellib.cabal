@@ -63,6 +63,7 @@ library
                    , Yap.Prim
                    , Yap.Error
                    , Yap.Input
+                   , Yap.Config
     -- Modules included in this library but not exported.
     -- other-modules:
 
@@ -73,6 +74,7 @@ library
     build-depends:    base ^>=4.20.0.0
                     , transformers
                     , text
+                    , mtl
 
     -- Directories containing source files.
     hs-source-dirs:   lib
