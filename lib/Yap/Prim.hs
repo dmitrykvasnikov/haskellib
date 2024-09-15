@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module Yap.Prim
   ( Config (..),
     Parser (..),
@@ -21,12 +19,11 @@ module Yap.Prim
   )
 where
 
-import           Control.Applicative              (many, some, (<|>))
-import           Control.Monad.Trans.Except       (runExceptT)
-import           Control.Monad.Trans.Reader       (runReader)
-import           Control.Monad.Trans.State.Strict (evalStateT, runStateT)
+import           Control.Applicative        (many, some, (<|>))
+import           Control.Monad.Except       (runExceptT)
+import           Control.Monad.Reader       (runReader)
+import           Control.Monad.State.Strict (evalStateT, runStateT)
 import           Yap.Config
-import           Yap.Config                       (Config (doubleSep))
 import           Yap.Error
 import           Yap.Input
 import           Yap.Parser

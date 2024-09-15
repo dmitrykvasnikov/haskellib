@@ -14,14 +14,14 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +67 haskellib.cabal
+badd +76 haskellib.cabal
 badd +3 lib/Yap.hs
-badd +14 lib/Yap/Prim.hs
+badd +39 lib/Yap/Prim.hs
 badd +41 lib/Yap/Error.hs
 badd +35 lib/Yap/Input.hs
 badd +2 app/Main.hs
 badd +4 lib/Yap/Config.hs
-badd +1 lib/Yap/Parser.hs
+badd +26 lib/Yap/Parser.hs
 argglobal
 %argdel
 edit lib/Yap/Parser.hs
@@ -35,12 +35,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 97 - ((31 * winheight(0) + 16) / 33)
+let s:l = 99 - ((23 * winheight(0) + 16) / 33)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 97
-normal! 054|
+keepjumps 99
+normal! 033|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
