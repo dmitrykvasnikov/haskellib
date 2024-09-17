@@ -16,12 +16,12 @@ else
 endif
 badd +76 haskellib.cabal
 badd +3 lib/Yap.hs
-badd +52 lib/Yap/Prim.hs
+badd +57 lib/Yap/Prim.hs
 badd +1 lib/Yap/Error.hs
 badd +17 lib/Yap/Input.hs
 badd +2 app/Main.hs
 badd +3 lib/Yap/Config.hs
-badd +1 lib/Yap/Parser.hs
+badd +52 lib/Yap/Parser.hs
 argglobal
 %argdel
 edit lib/Yap/Parser.hs
@@ -35,11 +35,11 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 34 - ((16 * winheight(0) + 16) / 33)
+let s:l = 188 - ((14 * winheight(0) + 15) / 30)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 34
+keepjumps 188
 normal! 0
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
@@ -53,7 +53,6 @@ if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
 endif
 let &g:so = s:so_save | let &g:siso = s:siso_save
-nohlsearch
 let g:this_session = v:this_session
 let g:this_obsession = v:this_session
 doautoall SessionLoadPost

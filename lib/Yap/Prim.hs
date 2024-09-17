@@ -24,13 +24,13 @@ module Yap.Prim
     sp,
     sps,
     sps1,
+    some,
+    many,
     sepBy,
     sepBy1,
     mkInputFromString,
     mkInputFromFile,
     stdConfig,
-    some,
-    many,
     (<|>),
   )
 where

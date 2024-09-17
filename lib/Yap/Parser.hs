@@ -4,12 +4,12 @@ module Yap.Parser where
 
 import           Control.Applicative        (Alternative, asum, empty, many,
                                              some, (<|>))
-import           Control.Monad.Except       (ExceptT, MonadError, runExceptT,
-                                             throwError)
+import           Control.Monad.Except       (ExceptT (..), MonadError,
+                                             runExceptT, throwError)
 import           Control.Monad.Reader       (MonadReader, Reader, ask, asks,
-                                             runReader)
-import           Control.Monad.State.Strict (MonadState, StateT, evalStateT,
-                                             get, gets, modify, put)
+                                             reader, runReader)
+import           Control.Monad.State.Strict (MonadState, StateT (..),
+                                             evalStateT, get, gets, modify, put)
 import           Data.Char                  (isAlpha, isAlphaNum, isDigit,
                                              isLower, isUpper)
 import qualified Data.Text                  as T (index, length, unpack)
@@ -20,29 +20,64 @@ import           Yap.Input
 -- for conviniece usage in internal functions
 type Parser_ = ExceptT Error (StateT Input (Reader Config))
 
-newtype Parser t = Parser { unparse :: Parser_ t }
-  deriving newtype
-  ( Functor
-  , Monad
-  , MonadError Error
-  , MonadReader Config
-  , MonadState Input
-  )
+newtype Parser t = Parser { runParser :: ExceptT Error (StateT Input (Reader Config)) t }
+  deriving newtype (MonadError Error, MonadReader Config, MonadState Input)
 
-instance Applicative Parser
+-- instances must be implemmented because of standard deriving doesn't return input to initital state in case of Error in Applicatives
+instance Functor Parser where
+  fmap f mt = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
+    case run mt c i of
+      (Right t, i') -> (Right $ f t, i')
+      (Left e, _)   -> (Left e, i)
+
+instance Applicative Parser where
+  pure t = Parser $ ExceptT $ StateT $ \i -> reader $ \_ -> (Right t, i)
+  pf <*> pt = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
+    case run pf c i of
+      (Left e, _) -> (Left e, i)
+      (Right f, i') -> case run pt c i' of
+        (Left e', _)   -> (Left e', i)
+        (Right t, i'') -> (Right $ f t, i'')
+
+--   p1 *> p2 = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
+--     case run p1 c i of
+--       (Left e, _) -> (Left e, i)
+--       (Right _, i') -> case run p2 c i' of
+--         (Left e', _)   -> (Left e', i)
+--         (Right t, i'') -> (Right t, i'')
+--   p1 <* p2 = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
+--     case run p1 c i of
+--       (Left e, _) -> (Left e, i)
+--       (Right t, i') -> case run p2 c i' of
+--         (Left e', _)   -> (Left e', i)
+--         (Right _, i'') -> (Right t, i'')
 
 -- works properly and return error with longest consumed input
 instance Alternative Parser where
   empty = Parser $ getErrorPos >>= \p -> getErrorSrc >>= throwError . InternalError "Internal error for empty instance of Applicative" p
-  (Parser p1) <|> (Parser p2) = Parser $ do
-    t1 <- try_ p1
-    case t1 of
-      Right _ -> p1 >>= return
-      Left e1 -> do
-        t2 <- try_ p2
-        case t2 of
-          Right _ -> p2 >>= return
-          Left e2 -> if e1 < e2 then throwError e2 else throwError e1
+  p1 <|> p2 = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
+    case run p1 c i of
+      (Right t, i') -> (Right t, i')
+      (Left e1, _) -> case run p2 c i of
+        (Right t', i'') -> (Right t', i'')
+        (Left e2, _)    -> (Left $ max e1 e2, i)
+  many p = do
+    try p >>= \case
+      Left _  -> Parser $ return []
+      Right _ -> (:) <$> p <*> (many p)
+  some p = do
+    try p >>= \case
+      Left e  -> Parser $ throwError e
+      Right _ -> (:) <$> p <*> (many p)
+
+instance Monad Parser where
+  return = pure
+  pa >>= f = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
+    case run pa c i of
+      (Left e, _) -> (Left e, i)
+      (Right t, i') -> case run (f t) c i' of
+        (Left e, _)     -> (Left e, i')
+        (Right t', i'') -> (Right t', i'')
 
 -- basic parser for char - return char if confition holds and input has chars
 satisfy :: (Char -> Bool) -> (Char -> (Int, Int) -> String -> Error) -> Parser Char
@@ -116,18 +151,17 @@ double, sigDouble :: Parser Double
 double =
   Parser $
     asks doubleSep >>= \sep ->
-      read . mconcat <$> (sequence $ map unparse [numS "Can not parse double number", string sep, numS "Can not parse double number"])
+      read . mconcat <$> (sequence $ map runParser [numS "Can not parse double number", string sep, numS "Can not parse double number"])
 sigDouble = double <|> (sym '+' *> double) <|> (sym '-' *> (negate <$> double))
 
 -- parser for list elements with separator
 -- sepBy return [] in case of fail, sepBy1 needs at least 1 element for success
 sepBy, sepBy1 :: Parser a -> Parser b -> Parser [a]
-sepBy (Parser p) (Parser sep) = Parser $ do
-  r <- try_ p
-  case r of
-    Left _  -> return []
-    Right _ -> (:) <$> p <*> many (sep *> p)
-sepBy1 (Parser p) (Parser sep) = Parser $ (:) <$> p <*> many (sep *> p)
+sepBy p sep = do
+  try p >>= \case
+    (Left _)  -> Parser $ return []
+    (Right _) -> sepBy1 p sep
+sepBy1 p sep = (:) <$> p <*> (many (sep *> p))
 
 -- HELPERS
 --
@@ -151,11 +185,15 @@ consumeInput = do
     _ -> put (Input o' ((lo, l), c + 1) s) >> return ()
 
 -- try parser in isolated monad transformer environment
-try_ :: Parser_ t -> Parser_ (Either Error t)
-try_ p = do
+try :: Parser t -> Parser (Either Error t)
+try p = do
   c <- ask
   i <- get
-  return $ (flip runReader c) ((evalStateT . runExceptT) p i)
+  return $ (flip runReader c) ((evalStateT . runExceptT) (runParser p) i)
+
+-- run used in Monad etc instances
+run :: Parser t -> Config -> Input -> (Either Error t, Input)
+run p c i = (flip runReader c) $ (runStateT . runExceptT) (runParser p) i
 
 -- get position of error for ErrorMessage
 getErrorPos :: Parser_ (Int, Int)
@@ -165,6 +203,6 @@ getErrorPos = gets pos >>= \((_, l), c) -> return (l, c)
 getErrorSrc :: Parser_ String
 getErrorSrc = do
   (Input _ ((l, _), c) s) <- get
-  let sps = take (c - 1) (repeat ' ')
+  let ss = take (c - 1) (repeat ' ')
       src = takeWhile (/= '\n') (drop l $ T.unpack s)
-  return $ sps <> "*\n" <> src <> "\n" <> sps <> "*\n"
+  return $ ss <> "*\n" <> src <> "\n" <> ss <> "*\n"
