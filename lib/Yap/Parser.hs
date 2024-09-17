@@ -2,8 +2,9 @@
 
 module Yap.Parser where
 
-import           Control.Applicative        (Alternative, asum, empty, many,
-                                             some, (<|>))
+import           Control.Applicative        (Alternative, empty, many, some,
+                                             (<|>))
+import           Control.Monad
 import           Control.Monad.Except       (ExceptT (..), MonadError,
                                              runExceptT, throwError)
 import           Control.Monad.Reader       (MonadReader, Reader, ask, asks,
@@ -60,7 +61,7 @@ instance Alternative Parser where
       (Right t, i') -> (Right t, i')
       (Left e1, _) -> case run p2 c i of
         (Right t', i'') -> (Right t', i'')
-        (Left e2, _)    -> (Left $ max e1 e2, i)
+        (Left e2, _)    -> (Left $ e1 <> e2, i)
   many p = do
     try p >>= \case
       Left _  -> Parser $ return []
@@ -79,6 +80,9 @@ instance Monad Parser where
         (Left e, _)     -> (Left e, i')
         (Right t', i'') -> (Right t', i'')
 
+instance MonadPlus Parser where
+  mzero = Parser $ getErrorPos >>= \p -> getErrorSrc >>= throwError . InternalError "Internal error for mzero" p
+
 -- basic parser for char - return char if confition holds and input has chars
 satisfy :: (Char -> Bool) -> (Char -> (Int, Int) -> String -> Error) -> Parser Char
 satisfy cond err = Parser $ do
@@ -94,6 +98,12 @@ sym ch = satisfy (== ch) (UnexpectedError $ "Can not parse symbol '" <> [ch] <> 
 -- get any symbol and make error in case of end of input
 anySym :: Parser Char
 anySym = satisfy (const True) EndOfFileError
+
+eof :: Parser ()
+eof = do
+  try anySym >>= \case
+    Right _ -> Parser $ getErrorPos >>= \p -> getErrorSrc >>= throwError . ExpectedError "Expected end of input" p
+    Left _ -> Parser $ return ()
 
 -- parse char according to condition, including message
 psym :: (Char -> Bool) -> String -> Parser Char
@@ -130,9 +140,12 @@ numS str = some $ satisfy isDigit $ UnexpectedError str
 
 -- sp / sps - space and spaces
 -- ws / wss - white space (' ', '\n', '\t'), with many, sps1, wss1 - with some
-sp, ws :: Parser Char
+-- tab / newline - symbols of tabulation and newline
+sp, ws, tab, newline :: Parser Char
 sp = psym (== ' ') "Can not parse space"
 ws = psym (flip elem " \n\t") "Can not parse whitespace (space, newline or tab)"
+tab = psym (== '\t') "Can not parse TAB"
+newline = psym (== '\n') "Can not parse new line"
 
 sps, sps1, wss, wss1 :: Parser String
 sps = many $ psym (== ' ') "Can not parse spaces"
@@ -154,6 +167,16 @@ double =
       read . mconcat <$> (sequence $ map runParser [numS "Can not parse double number", string sep, numS "Can not parse double number"])
 sigDouble = double <|> (sym '+' *> double) <|> (sym '-' *> (negate <$> double))
 
+-- withDefault / withDefaultCons - return default value in case of error. withDefaultCons takes function for Input modification
+withDefault :: b -> Parser b -> Parser b
+withDefault dt p = withDefaultCons dt p id
+
+withDefaultCons :: b -> Parser b -> (Input -> Input) -> Parser b
+withDefaultCons dt p f = do
+  try p >>= \case
+    Right _ -> p
+    Left _  -> Parser $ modify f >> return dt
+
 -- parser for list elements with separator
 -- sepBy return [] in case of fail, sepBy1 needs at least 1 element for success
 sepBy, sepBy1 :: Parser a -> Parser b -> Parser [a]
@@ -163,8 +186,17 @@ sepBy p sep = do
     (Right _) -> sepBy1 p sep
 sepBy1 p sep = (:) <$> p <*> (many (sep *> p))
 
+-- trim, triml, trimr - removes whitespaces from both sides, left or right
+trim, triml, trimr :: Parser a -> Parser a
+trim p = wss *> p <* wss
+triml p = wss *> p
+trimr p = p <* wss
+
+-- choice is alternative to <|>
+choice :: [Parser a] -> Parser a
+choice = foldr (<|>) mzero
+
 -- HELPERS
---
 -- return current char or throw exceptioin in case of end of input
 peek :: Parser_ Char
 peek = do
@@ -181,7 +213,7 @@ consumeInput = do
       ch = T.index s o
   case ch of
     '\n' -> put (Input o' ((o', l + 1), 1) s) >> return ()
-    '\t' -> asks tab >>= \t -> put (Input o' ((lo, l), c - (mod (c - 1) t) + t) s) >> return ()
+    '\t' -> asks tabWidth >>= \t -> put (Input o' ((lo, l), c - (mod (c - 1) t) + t) s) >> return ()
     _ -> put (Input o' ((lo, l), c + 1) s) >> return ()
 
 -- try parser in isolated monad transformer environment

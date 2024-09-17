@@ -5,6 +5,7 @@ module Yap.Prim
     parse',
     sym,
     anySym,
+    eof,
     string,
     num,
     sigNum,
@@ -18,6 +19,8 @@ module Yap.Prim
     upSyms,
     oneOf,
     noneOf,
+    newline,
+    tab,
     ws,
     wss,
     wss1,
@@ -28,6 +31,12 @@ module Yap.Prim
     many,
     sepBy,
     sepBy1,
+    withDefault,
+    withDefaultCons,
+    trim,
+    triml,
+    trimr,
+    choice,
     mkInputFromString,
     mkInputFromFile,
     stdConfig,
@@ -56,6 +65,6 @@ parse' (Parser p) = (flip runReader stdConfig) . (runStateT . runExceptT) p . mk
 stdConfig :: Config
 stdConfig =
   Config
-    { tab = 8,
+    { tabWidth = 8,
       doubleSep = "."
     }

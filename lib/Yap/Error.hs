@@ -12,6 +12,10 @@ data Error = EndOfFileError { ch     :: Char
                              , errPos :: (Int, Int)
                              , src    :: String
                              }
+           | ExpectedError { msg    :: String
+                           , errPos :: (Int, Int)
+                           , src    :: String
+                           }
            | InternalError { msg    :: String
                            , errPos :: (Int, Int)
                            , src    :: String
@@ -34,12 +38,13 @@ instance Ord Error where
 instance Show Error where
   show (EndOfFileError _ p s) = intercalate "\n" [errHeader p, "unexpected end of input", s]
   show (UnexpectedError m c p s) = intercalate "\n" [errHeader p, m, "unexpected symbol '" <> [c] <> "'", s]
+  show (ExpectedError m p s) = intercalate "\n" [errHeader p, m, s]
   show (InternalError m p s) = intercalate "\n" [errHeader p, m, s]
 
 instance Semigroup Error where
-  e1@(InternalError _ _ _) <> _ = e1
-  _ <> e2@(InternalError _ _ _) = e2
-  e1 <> e2                      = if e1 <= e2 then e2 else e1
+  (InternalError _ _ _) <> e2 = e2
+  e1 <> (InternalError _ _ _) = e1
+  e1 <> e2                    = if e1 <= e2 then e2 else e1
 
 instance Monoid Error where
   mempty = InternalError "Internal error for mempty element" (1, 1) "No source code"
