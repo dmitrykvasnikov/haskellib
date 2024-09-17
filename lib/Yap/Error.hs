@@ -2,6 +2,7 @@ module Yap.Error where
 
 import           Data.List (intercalate)
 
+-- ch and msg are char at which error happens and message about error (provided by parser), src - line from input with error
 data Error = EndOfFileError { ch     :: Char
                             , errPos :: (Int, Int)
                             , src    :: String
@@ -44,5 +45,7 @@ instance Monoid Error where
   mempty = InternalError "Internal error for mempty element" (1, 1) "No source code"
   mappend = (<>)
 
+-- HELPERS
+-- error header with position of error
 errHeader :: (Int, Int) -> String
 errHeader (l, c) = "Error at line " <> show l <> " column " <> show c

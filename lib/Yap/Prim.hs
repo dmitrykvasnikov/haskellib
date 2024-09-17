@@ -10,6 +10,22 @@ module Yap.Prim
     sigNum,
     double,
     sigDouble,
+    alSym,
+    alnumSym,
+    lowSym,
+    upSym,
+    lowSyms,
+    upSyms,
+    oneOf,
+    noneOf,
+    ws,
+    wss,
+    wss1,
+    sp,
+    sps,
+    sps1,
+    sepBy,
+    sepBy1,
     mkInputFromString,
     mkInputFromFile,
     stdConfig,
@@ -32,6 +48,7 @@ import           Yap.Parser
 parse :: Parser t -> String -> Either Error t
 parse (Parser p) = (flip runReader stdConfig) . (evalStateT . runExceptT) p . mkInputFromString
 
+-- Parser runner with state included
 parse' :: Parser t -> String -> (Either Error t, Input)
 parse' (Parser p) = (flip runReader stdConfig) . (runStateT . runExceptT) p . mkInputFromString
 
