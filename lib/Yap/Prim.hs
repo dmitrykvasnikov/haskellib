@@ -1,70 +1,19 @@
 module Yap.Prim
-  ( Config (..),
-    Parser (..),
-    parse,
+  ( parse,
     parse',
-    sym,
-    anySym,
-    eof,
-    string,
-    num,
-    sigNum,
-    double,
-    sigDouble,
-    alSym,
-    alnumSym,
-    lowSym,
-    upSym,
-    lowSyms,
-    upSyms,
-    oneOf,
-    noneOf,
-    newline,
-    tab,
-    ws,
-    wss,
-    wss1,
-    sp,
-    sps,
-    sps1,
-    some,
-    many,
-    sepBy,
-    sepBy1,
-    withDefault,
-    withDefaultCons,
-    trim,
-    triml,
-    trimr,
-    choice,
-    mkInputFromString,
-    mkInputFromFile,
-    stdConfig,
     (<|>),
+    sym,
+    string,
   )
 where
 
-import           Control.Applicative        (many, some, (<|>))
-import           Control.Monad.Except       (runExceptT)
-import           Control.Monad.Reader       (runReader)
-import           Control.Monad.State.Strict (evalStateT, runStateT)
-import           Yap.Config
+import           Control.Applicative ((<|>))
 import           Yap.Error
 import           Yap.Input
 import           Yap.Parser
 
--- Parser runner
 parse :: Parser t -> String -> Either Error t
-parse (Parser p) = (flip runReader stdConfig) . (evalStateT . runExceptT) p . mkInputFromString
+parse p = fst . runParser p . mkInputFromString_
 
--- Parser runner with state included
 parse' :: Parser t -> String -> (Either Error t, Input)
-parse' (Parser p) = (flip runReader stdConfig) . (runStateT . runExceptT) p . mkInputFromString
-
--- Standard config
-stdConfig :: Config
-stdConfig =
-  Config
-    { tabWidth = 8,
-      doubleSep = "."
-    }
+parse' p = runParser p . mkInputFromString_

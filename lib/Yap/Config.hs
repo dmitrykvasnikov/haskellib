@@ -6,4 +6,10 @@ module Yap.Config where
 data Config = Config { tabWidth  :: Int
                      , doubleSep :: String
                      }
-  deriving (Show)
+
+instance Show Config where
+  show cfg =
+    "Configuration\nTab width: "
+      <> (show . tabWidth $ cfg)
+      <> "\nDouble number separator: "
+      <> (show . doubleSep $ cfg)

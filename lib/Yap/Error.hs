@@ -2,55 +2,50 @@ module Yap.Error where
 
 import           Data.List (intercalate)
 
--- ch and msg are char at which error happens and message about error (provided by parser), src - line from input with error
-data Error = EndOfFileError { ch     :: Char
-                            , errPos :: (Int, Int)
-                            , src    :: String
+type Line = Int
+
+type Col = Int
+
+type Pos = (Line, Col)
+
+type Message = String
+
+type Source = String
+
+data Error = UnexpectedChar { ch     :: Char
+                            , errPos :: Pos
+                            , msg    :: Message
+                            , src    :: Source
                             }
-           | UnexpectedError { msg    :: String
-                             , ch     :: Char
-                             , errPos :: (Int, Int)
-                             , src    :: String
-                             }
-           | ExpectedError { msg    :: String
-                           , errPos :: (Int, Int)
-                           , src    :: String
-                           }
-           | InternalError { msg    :: String
-                           , errPos :: (Int, Int)
-                           , src    :: String
+           | EndOfInput { errPos :: Pos
+                        , msg    :: Message
+                        , src    :: Source
+                        }
+           | InternalError { errPos :: Pos
+                           , msg    :: Message
+                           , src    :: Source
                            }
 
 instance Eq Error where
-  e1 == e2 =
-    let (l1, c1) = errPos e1
-        (l2, c2) = errPos e2
-     in (l1 == l2) && (c1 == c2)
+  e1 == e2 = errPos e1 == errPos e2
 
 instance Ord Error where
-  e1 <= e2 =
-    let (l1, c1) = errPos e1
-        (l2, c2) = errPos e2
-     in if l1 == l2
-          then c1 <= c2
-          else l1 <= l2
-
-instance Show Error where
-  show (EndOfFileError _ p s) = intercalate "\n" [errHeader p, "unexpected end of input", s]
-  show (UnexpectedError m c p s) = intercalate "\n" [errHeader p, m, "unexpected symbol '" <> [c] <> "'", s]
-  show (ExpectedError m p s) = intercalate "\n" [errHeader p, m, s]
-  show (InternalError m p s) = intercalate "\n" [errHeader p, m, s]
+  e1 <= e2 = errPos e1 <= errPos e2
 
 instance Semigroup Error where
   (InternalError _ _ _) <> e2 = e2
   e1 <> (InternalError _ _ _) = e1
-  e1 <> e2                    = if e1 <= e2 then e2 else e1
+  e1 <> e2                    = if e1 < e2 then e2 else e1
 
 instance Monoid Error where
-  mempty = InternalError "Internal error for mempty element" (1, 1) "No source code"
+  mempty = InternalError (0, 0) "Internal error for memty instance" ""
   mappend = (<>)
 
--- HELPERS
--- error header with position of error
-errHeader :: (Int, Int) -> String
-errHeader (l, c) = "Error at line " <> show l <> " column " <> show c
+instance Show Error where
+  show (UnexpectedChar c p m s) = intercalate "\n" [header p, m, "unexpected char '" <> [c] <> "'", s]
+  show (EndOfInput p m s) = intercalate "\n" [header p, m, "unexpected end of stream", s]
+  show (InternalError p m s) = intercalate "\n" [header p, m, s]
+
+-- make Error header
+header :: Pos -> String
+header (l, c) = "Error at ln " <> show l <> " col " <> show c

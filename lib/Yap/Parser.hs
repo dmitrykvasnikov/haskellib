@@ -1,240 +1,89 @@
-{-# LANGUAGE DerivingStrategies #-}
-
 module Yap.Parser where
 
-import           Control.Applicative        (Alternative, empty, many, some,
-                                             (<|>))
-import           Control.Monad
-import           Control.Monad.Except       (ExceptT (..), MonadError,
-                                             runExceptT, throwError)
-import           Control.Monad.Reader       (MonadReader, Reader, ask, asks,
-                                             reader, runReader)
-import           Control.Monad.State.Strict (MonadState, StateT (..),
-                                             evalStateT, get, gets, modify, put)
-import           Data.Char                  (isAlpha, isAlphaNum, isDigit,
-                                             isLower, isUpper)
-import qualified Data.Text                  as T (index, length, unpack)
-import           Yap.Config
+import           Control.Applicative (Alternative, empty, (<|>))
+import           Data.Text           as T (index, length, unpack)
 import           Yap.Error
 import           Yap.Input
 
--- for conviniece usage in internal functions
-type Parser_ = ExceptT Error (StateT Input (Reader Config))
+newtype Parser a = Parser { runParser :: Input -> (Either Error a, Input) }
 
-newtype Parser t = Parser { runParser :: ExceptT Error (StateT Input (Reader Config)) t }
-  deriving newtype (MonadError Error, MonadReader Config, MonadState Input)
-
--- instances must be implemmented because of standard deriving doesn't return input to initital state in case of Error in Applicatives
 instance Functor Parser where
-  fmap f mt = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
-    case run mt c i of
-      (Right t, i') -> (Right $ f t, i')
+  fmap f p = Parser $ \i ->
+    case runParser p i of
       (Left e, _)   -> (Left e, i)
+      (Right t, i') -> (Right . f $ t, i')
 
 instance Applicative Parser where
-  pure t = Parser $ ExceptT $ StateT $ \i -> reader $ \_ -> (Right t, i)
-  pf <*> pt = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
-    case run pf c i of
+  pure t = Parser $ \i -> (Right t, i)
+  pf <*> pt = Parser $ \i ->
+    case runParser pf i of
       (Left e, _) -> (Left e, i)
-      (Right f, i') -> case run pt c i' of
-        (Left e', _)   -> (Left e', i)
-        (Right t, i'') -> (Right $ f t, i'')
-
---   p1 *> p2 = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
---     case run p1 c i of
---       (Left e, _) -> (Left e, i)
---       (Right _, i') -> case run p2 c i' of
---         (Left e', _)   -> (Left e', i)
---         (Right t, i'') -> (Right t, i'')
---   p1 <* p2 = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
---     case run p1 c i of
---       (Left e, _) -> (Left e, i)
---       (Right t, i') -> case run p2 c i' of
---         (Left e', _)   -> (Left e', i)
---         (Right _, i'') -> (Right t, i'')
-
--- works properly and return error with longest consumed input
-instance Alternative Parser where
-  empty = Parser $ getErrorPos >>= \p -> getErrorSrc >>= throwError . InternalError "Internal error for empty instance of Applicative" p
-  p1 <|> p2 = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
-    case run p1 c i of
-      (Right t, i') -> (Right t, i')
-      (Left e1, _) -> case run p2 c i of
-        (Right t', i'') -> (Right t', i'')
-        (Left e2, _)    -> (Left $ e1 <> e2, i)
-  many p = do
-    try p >>= \case
-      Left _  -> Parser $ return []
-      Right _ -> (:) <$> p <*> (many p)
-  some p = do
-    try p >>= \case
-      Left e  -> Parser $ throwError e
-      Right _ -> (:) <$> p <*> (many p)
+      (Right f, i') -> case runParser pt i' of
+        (Left e, _)    -> (Left e, i)
+        (Right t, i'') -> (Right . f $ t, i'')
 
 instance Monad Parser where
   return = pure
-  pa >>= f = Parser $ ExceptT $ StateT $ \i -> reader $ \c -> do
-    case run pa c i of
-      (Left e, _) -> (Left e, i)
-      (Right t, i') -> case run (f t) c i' of
-        (Left e, _)     -> (Left e, i')
-        (Right t', i'') -> (Right t', i'')
+  mt >>= f = Parser $ \i ->
+    case runParser mt i of
+      (Left e, _)   -> (Left e, i)
+      (Right t, i') -> runParser (f t) i'
 
-instance MonadPlus Parser where
-  mzero = Parser $ getErrorPos >>= \p -> getErrorSrc >>= throwError . InternalError "Internal error for mzero" p
+instance Alternative Parser where
+  empty = Parser $ \i -> (Left $ InternalError (getErrPos i) "Internal error for empty instance" (getErrorSrc i), i)
+  p1 <|> p2 = Parser $ \i ->
+    case runParser p1 i of
+      (Right t, i') -> (Right t, i')
+      (Left e1, _) -> case runParser p2 i of
+        (Right t, i'') -> (Right t, i'')
+        (Left e2, _)   -> (Left $ e1 <> e2, i)
 
--- basic parser for char - return char if confition holds and input has chars
-satisfy :: (Char -> Bool) -> (Char -> (Int, Int) -> String -> Error) -> Parser Char
-satisfy cond err = Parser $ do
-  ch <- peek
-  case cond ch of
-    True  -> consumeInput >> return ch
-    False -> getErrorPos >>= \p -> getErrorSrc >>= throwError . err ch p
+satisfy :: Message -> (Char -> Bool) -> Parser Char
+satisfy msg cond = Parser $ \i ->
+  case peek i of
+    Just ch -> case cond ch of
+      True  -> (Right ch, updatePos i)
+      False -> (Left $ UnexpectedChar ch (getErrPos i) msg (getErrorSrc i), i)
+    Nothing -> (Left $ EndOfInput (getErrPos i) msg (getErrorSrc i), i)
 
--- parser for specific char
 sym :: Char -> Parser Char
-sym ch = satisfy (== ch) (UnexpectedError $ "Can not parse symbol '" <> [ch] <> "'")
+sym ch = satisfy ("Parser: char '" <> [ch] <> "'") (== ch)
 
--- get any symbol and make error in case of end of input
-anySym :: Parser Char
-anySym = satisfy (const True) EndOfFileError
-
-eof :: Parser ()
-eof = do
-  try anySym >>= \case
-    Right _ -> Parser $ getErrorPos >>= \p -> getErrorSrc >>= throwError . ExpectedError "Expected end of input" p
-    Left _ -> Parser $ return ()
-
--- parse char according to condition, including message
-psym :: (Char -> Bool) -> String -> Parser Char
-psym cond msg = satisfy cond $ (UnexpectedError $ msg)
-
--- parse char according to condition with standard message
-psym_ :: (Char -> Bool) -> Parser Char
-psym_ cond = satisfy cond (UnexpectedError "Char doesnot satisfy condition")
-
--- parser for up / lower / alpha / alphanum char
-upSym, lowSym, alSym, alnumSym :: Parser Char
-upSym = psym isUpper "Can not parse symbol in upper case"
-lowSym = psym isLower "Can not parse symbol in lower case"
-alSym = psym isAlpha "Can not parse alphabetic symbol"
-alnumSym = psym isAlphaNum "Can not parse alphanumeric symbol"
-
--- strings from lower / upper symbol
-upSyms, lowSyms :: Parser String
-upSyms = some $ psym isUpper "Can not parser string of symbols in upper case"
-lowSyms = some $ psym isLower "Can not parser string of symbols in lower case"
-
--- parser char which is presented / not presented in string
-oneOf, noneOf :: String -> Parser Char
-oneOf str = satisfy (flip elem str) (UnexpectedError $ "Can not parse oneOf '" <> str <> "'")
-noneOf str = satisfy (not . flip elem str) (UnexpectedError $ "Can not parse noneOf '" <> str <> "'")
-
--- parser for string
 string :: String -> Parser String
-string s = traverse (\ch -> satisfy (== ch) (UnexpectedError $ "Can not parse string '" <> s <> "'")) s
+string s = traverse (satisfy ("Parser: string '" <> s <> "'") . (==)) s
 
--- numS - helper, read number as STRING
-numS :: String -> Parser String
-numS str = some $ satisfy isDigit $ UnexpectedError str
+-- get :: Parser Input
+-- get = Parser $ \i -> (Right i, i)
+--
+-- modify :: (Input -> Input) -> Parser ()
+-- modify f = Parser $ \i -> (Right (), f i)
 
--- sp / sps - space and spaces
--- ws / wss - white space (' ', '\n', '\t'), with many, sps1, wss1 - with some
--- tab / newline - symbols of tabulation and newline
-sp, ws, tab, newline :: Parser Char
-sp = psym (== ' ') "Can not parse space"
-ws = psym (flip elem " \n\t") "Can not parse whitespace (space, newline or tab)"
-tab = psym (== '\t') "Can not parse TAB"
-newline = psym (== '\n') "Can not parse new line"
+peek :: Input -> (Maybe Char)
+peek i =
+  let s = source i
+      o = offset i
+   in case o < T.length s of
+        True  -> Just $ T.index s o
+        False -> Nothing
 
-sps, sps1, wss, wss1 :: Parser String
-sps = many $ psym (== ' ') "Can not parse spaces"
-wss = many $ psym (flip elem " \n\t") "Can not parse whitespaces (space, newline or tab)"
-sps1 = some $ psym (== ' ') "Can not parse spaces"
-wss1 = some $ psym (flip elem " \n\t") "Can not parse whitespaces (space, newline or tab)"
+getErrPos :: Input -> (Int, Int)
+getErrPos = (\((_, l), c) -> (l, c)) . pos
 
--- parser for integer number and signed integer number (signed includes number without sign)
-num, sigNum :: Parser Int
-num = read <$> numS "Can not parse integer number"
-sigNum = num <|> (sym '+' *> num) <|> (sym '-' *> (negate <$> num))
-
--- parser for double number and signed double number (signed includes number without sign)
--- separator for number parts stored in Config
-double, sigDouble :: Parser Double
-double =
-  Parser $
-    asks doubleSep >>= \sep ->
-      read . mconcat <$> (sequence $ map runParser [numS "Can not parse double number", string sep, numS "Can not parse double number"])
-sigDouble = double <|> (sym '+' *> double) <|> (sym '-' *> (negate <$> double))
-
--- withDefault / withDefaultCons - return default value in case of error. withDefaultCons takes function for Input modification
-withDefault :: b -> Parser b -> Parser b
-withDefault dt p = withDefaultCons dt p id
-
-withDefaultCons :: b -> Parser b -> (Input -> Input) -> Parser b
-withDefaultCons dt p f = do
-  try p >>= \case
-    Right _ -> p
-    Left _  -> Parser $ modify f >> return dt
-
--- parser for list elements with separator
--- sepBy return [] in case of fail, sepBy1 needs at least 1 element for success
-sepBy, sepBy1 :: Parser a -> Parser b -> Parser [a]
-sepBy p sep = do
-  try p >>= \case
-    (Left _)  -> Parser $ return []
-    (Right _) -> sepBy1 p sep
-sepBy1 p sep = (:) <$> p <*> (many (sep *> p))
-
--- trim, triml, trimr - removes whitespaces from both sides, left or right
-trim, triml, trimr :: Parser a -> Parser a
-trim p = wss *> p <* wss
-triml p = wss *> p
-trimr p = p <* wss
-
--- choice is alternative to <|>
-choice :: [Parser a] -> Parser a
-choice = foldr (<|>) mzero
-
--- HELPERS
--- return current char or throw exceptioin in case of end of input
-peek :: Parser_ Char
-peek = do
-  (Input o _ s) <- get
-  case o < T.length s of
-    False -> modify (\(Input o' ((lp, l), c) s') -> (Input o' ((lp, l), c - 1) s')) >> getErrorPos >>= \(l, c) -> getErrorSrc >>= throwError . EndOfFileError '!' (l, c)
-    True -> return $ T.index s o
-
--- move input one char further, in case of end of input position do not change
-consumeInput :: Parser_ ()
-consumeInput = do
-  (Input o ((lo, l), c) s) <- get
-  let o' = o + 1
-      ch = T.index s o
-  case ch of
-    '\n' -> put (Input o' ((o', l + 1), 1) s) >> return ()
-    '\t' -> asks tabWidth >>= \t -> put (Input o' ((lo, l), c - (mod (c - 1) t) + t) s) >> return ()
-    _ -> put (Input o' ((lo, l), c + 1) s) >> return ()
-
--- try parser in isolated monad transformer environment
-try :: Parser t -> Parser (Either Error t)
-try p = do
-  c <- ask
-  i <- get
-  return $ (flip runReader c) ((evalStateT . runExceptT) (runParser p) i)
-
--- run used in Monad etc instances
-run :: Parser t -> Config -> Input -> (Either Error t, Input)
-run p c i = (flip runReader c) $ (runStateT . runExceptT) (runParser p) i
-
--- get position of error for ErrorMessage
-getErrorPos :: Parser_ (Int, Int)
-getErrorPos = gets pos >>= \((_, l), c) -> return (l, c)
-
--- get string with error from source
-getErrorSrc :: Parser_ String
-getErrorSrc = do
-  (Input _ ((l, _), c) s) <- get
-  let ss = take (c - 1) (repeat ' ')
+getErrorSrc :: Input -> String
+getErrorSrc i =
+  let ((l, _), c) = pos i
+      s = source i
+      ss = take (c - 1) (repeat ' ')
       src = takeWhile (/= '\n') (drop l $ T.unpack s)
-  return $ ss <> "*\n" <> src <> "\n" <> ss <> "*\n"
+   in ss <> "*\n" <> src <> "\n" <> ss <> "*\n"
+
+-- ErrPos :: Parser (Int, Int)
+-- ErrPos = pos <$> get >>= \((_, l), c) -> return (l, c)
+--
+-- ErrorSrc :: Parser String
+-- ErrorSrc = do
+-- (l, _), c) <- pos <$> get
+--  <- source <$> get
+-- et ss = take (c - 1) (repeat ' ')
+--    src = takeWhile (/= '\n') (drop l $ T.unpack s)
+-- eturn $ ss <> "*\n" <> src <> "\n" <> ss <> "*\n"

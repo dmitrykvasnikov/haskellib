@@ -16,17 +16,17 @@ else
 endif
 badd +76 haskellib.cabal
 badd +3 lib/Yap.hs
-badd +39 lib/Yap/Prim.hs
-badd +45 lib/Yap/Error.hs
-badd +25 lib/Yap/Input.hs
-badd +2 app/Main.hs
-badd +6 lib/Yap/Config.hs
-badd +197 lib/Yap/Parser.hs
+badd +1 lib/Yap/Prim.hs
+badd +46 lib/Yap/Error.hs
+badd +28 lib/Yap/Input.hs
+badd +6 app/Main.hs
+badd +15 lib/Yap/Config.hs
+badd +53 lib/Yap/Parser.hs
 argglobal
 %argdel
-edit lib/Yap/Parser.hs
+edit lib/Yap/Prim.hs
 argglobal
-balt lib/Yap/Error.hs
+balt lib/Yap/Parser.hs
 setlocal fdm=marker
 setlocal fde=0
 setlocal fmr=/**,**/
@@ -35,12 +35,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 200 - ((16 * winheight(0) + 16) / 33)
+let s:l = 10 - ((9 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 200
-normal! 035|
+keepjumps 10
+normal! 022|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
@@ -53,7 +53,6 @@ if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
 endif
 let &g:so = s:so_save | let &g:siso = s:siso_save
-nohlsearch
 let g:this_session = v:this_session
 let g:this_obsession = v:this_session
 doautoall SessionLoadPost
