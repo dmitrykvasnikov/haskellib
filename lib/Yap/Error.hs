@@ -42,7 +42,7 @@ instance Monoid Error where
   mappend = (<>)
 
 instance Show Error where
-  show (UnexpectedChar c p m s) = intercalate "\n" [header p, m, "unexpected char '" <> [c] <> "'", s]
+  show (UnexpectedChar c p m s) = intercalate "\n" [header p, m, "unexpected symbol '" <> [c] <> "'", s]
   show (EndOfInput p m s) = intercalate "\n" [header p, m, "unexpected end of stream", s]
   show (InternalError p m s) = intercalate "\n" [header p, m, s]
 
