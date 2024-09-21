@@ -5,6 +5,7 @@ import           Control.Monad       (MonadPlus (..))
 import           Data.Char           (isAlpha, isAlphaNum, isDigit, isLower,
                                       isUpper)
 import           Data.Text           as T (index, length, unpack)
+import           GHC.Read            (list)
 import           Yap.Config
 import           Yap.Error
 import           Yap.Input
@@ -62,8 +63,8 @@ many1 p = some'
     some' = liftA2 (:) p many'
 
 -- return an error in case of fail
-many0 :: Parser p -> Parser [p]
-many0 p = many'
+many :: Parser p -> Parser [p]
+many p = many'
   where
     many' = some' <|> return []
     some' = liftA2 (:) p many'
@@ -176,7 +177,7 @@ withDefault t p = Parser $ \i ->
 replace :: Parser a -> b -> Parser b
 replace p t = p >> return t
 
--- followedBy - doesn't consume second parser
+-- followedBy / notFollowedBy - doesn't consume second parser
 followedBy :: Parser a -> Parser b -> Parser a
 followedBy pt pf = Parser $ \i ->
   case runParser pt i of
@@ -185,17 +186,38 @@ followedBy pt pf = Parser $ \i ->
       (Left e, _)  -> (Left e, i)
     (Left e, _) -> (Left e, i)
 
+notFollowedBy :: Parser a -> Parser b -> Parser a
+notFollowedBy pt pf = Parser $ \i ->
+  case runParser pt i of
+    r@(Right _, i') -> case runParser pf i' of
+      (Right _, _) -> (Left $ InternalError (getErrPos i') "Failed with notFollowedBy parser" (getErrorSrc i'), i)
+      (Left _, _) -> r
+    (Left e, _) -> (Left e, i)
+
 -- parser for list with separator, sepBy should have at least one element,
 -- sepBy0 will return empty list in case of failure,
 -- sepByTrail allows trailing separator after last element of list
 sepBy, sepBy0, sepByTrail :: Parser t -> Parser s -> Parser [t]
-sepBy p s = liftA2 (:) p (many0 (s *> p))
+sepBy p s = liftA2 (:) p (many (s *> p))
 sepBy0 p s = sepBy p s <|> (pure [])
 sepByTrail p s = sepBy p s <* (replace s () <|> pure ())
 
 -- parse value between other parsers
 between :: Parser b1 -> Parser b2 -> Parser t -> Parser t
 between b1 b2 p = b1 *> p <* b2
+
+-- runs parser N times and return a list, in case of 0 or negative N returns an empty list
+count :: Int -> Parser t -> Parser [t]
+count n p = case n > 0 of
+  True  -> sequence (replicate n p)
+  False -> return []
+
+-- in case if parser fails it return Error with custom Message
+(<?>) :: Parser t -> String -> Parser t
+(<?>) p msg = Parser $ \i ->
+  case runParser p i of
+    r@(Right _, _) -> r
+    _              -> (Left . CustomError (getErrPos i) msg $ getErrorSrc i, i)
 
 -- helpers to get info from Input
 peek :: Input -> (Maybe Char)

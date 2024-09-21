@@ -2,6 +2,7 @@ module Yap.Prim
   ( parse,
     parse',
     (<|>),
+    (<?>),
     sym,
     anySym,
     pSym,
@@ -18,8 +19,9 @@ module Yap.Prim
     sigNum,
     double,
     sigDouble,
-    many0,
+    many,
     many1,
+    count,
     choice,
     best,
     withDefault,
@@ -38,6 +40,7 @@ module Yap.Prim
     replace,
     between,
     followedBy,
+    notFollowedBy,
     string,
   )
 where
